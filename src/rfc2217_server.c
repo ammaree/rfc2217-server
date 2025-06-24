@@ -562,11 +562,10 @@ static void process_subnegotiation(rfc2217_server_t server)
         rfc2217_send_subnegotiation(server, T_SERVER_NOTIFY_MODEMSTATE, &server->suboption[2], 1);
     } else if (subnegotiation == T_PURGE_DATA) {
         uint8_t purge = server->suboption[2];
-        rfc2217_send_subnegotiation(server, T_SERVER_PURGE_DATA, &server->suboption[2], 1);
         rfc2217_purge_t purge_type = (rfc2217_purge_t)purge;
         rfc2217_purge_t purge_result = purge_type;
         if (server->config.on_purge) {
-            server->config.on_purge(server->config.ctx, purge_type);
+            purge_result = server->config.on_purge(server->config.ctx, purge_type);
         }
         ESP_LOGD(TAG, "Purge data: requested %d, accepted %d", purge_type, purge_result);
         uint8_t data[1] = {purge_result};
