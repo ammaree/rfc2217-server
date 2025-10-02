@@ -7,6 +7,10 @@ examples/uart:
   enable:
     - if: IDF_TARGET in ["esp32s3", "esp32c6"]
 
+examples/uart_esptool:
+  enable:
+    - if: IDF_TARGET == "esp32"
+
 examples/usb_cdc:
   enable:
     - if: IDF_TARGET in ["esp32s3", "esp32p4"]
