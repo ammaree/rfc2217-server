@@ -1,3 +1,15 @@
+## v0.4.0 (2025-10-05)
+
+### Feat
+
+- Add esptool UART example
+
+### Fix
+
+- Escape IAC bytes when found in data to be sent
+- Print correct baudrate when request received
+- Send correct purge result response
+
 ## v0.3.0 (2024-09-16)
 
 ### Feat
