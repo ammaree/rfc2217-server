@@ -32,9 +32,9 @@ typedef enum {
  * @brief RFC2217 purge request definitions
  */
 typedef enum {
-    RFC2217_PURGE_RECEIVE = 0,      //!< Request to purge receive buffer
-    RFC2217_PURGE_TRANSMIT = 1,     //!< Request to purge transmit buffer
-    RFC2217_PURGE_BOTH = 2          //!< Request to purge both receive and transmit buffers
+    RFC2217_PURGE_RECEIVE = 1,      //!< Request to purge receive buffer
+    RFC2217_PURGE_TRANSMIT = 2,     //!< Request to purge transmit buffer
+    RFC2217_PURGE_BOTH = 3          //!< Request to purge both receive and transmit buffers
 } rfc2217_purge_t;
 
 /**
@@ -45,6 +45,33 @@ typedef enum {
  * @return actual baudrate that was set
  */
 typedef unsigned (*rfc2217_on_baudrate_t)(void *ctx, unsigned requested_baudrate);
+
+/**
+ * @brief datasize change request callback
+ *
+ * @param ctx context pointer passed to rfc2217_server_create
+ * @param requested_datasize requested datasize
+ * @return actual datasize that was set
+ */
+typedef unsigned (*rfc2217_on_datasize_t)(void *ctx, unsigned requested_datasize);
+
+/**
+ * @brief parity change request callback
+ *
+ * @param ctx context pointer passed to rfc2217_server_create
+ * @param requested_parity requested parity
+ * @return actual parity that was set
+ */
+typedef unsigned (*rfc2217_on_parity_t)(void *ctx, unsigned requested_parity);
+
+/**
+ * @brief stopsize change request callback
+ *
+ * @param ctx context pointer passed to rfc2217_server_create
+ * @param requested_stopsize requested stopsize
+ * @return actual stopsize that was set
+ */
+typedef unsigned (*rfc2217_on_stopsize_t)(void *ctx, unsigned requested_stopsize);
 
 /**
  * @brief control signal change request callback
@@ -92,6 +119,9 @@ typedef struct {
     rfc2217_on_client_connected_t on_client_connected;  //!< callback called when client connects
     rfc2217_on_client_disconnected_t on_client_disconnected;    //!< callback called when client disconnects
     rfc2217_on_baudrate_t on_baudrate;  //!< callback called when client requests baudrate change
+    rfc2217_on_datasize_t on_datasize;  //!< callback called when client requests datasize change
+    rfc2217_on_parity_t on_parity;      //!< callback called when client requests parity change
+    rfc2217_on_stopsize_t on_stopsize;  //!< callback called when client requests stopsize change
     rfc2217_on_control_t on_control;    //!< callback called when client requests control signal change
     rfc2217_on_purge_t on_purge;    //!< callback called when client requests buffer purge
     rfc2217_on_data_received_t on_data_received;    //!< callback called when data is received from client

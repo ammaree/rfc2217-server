@@ -564,16 +564,28 @@ static void process_subnegotiation(rfc2217_server_t server)
         rfc2217_send_subnegotiation(server, T_SERVER_SET_BAUDRATE, data, 4);
     } else if (subnegotiation == T_SET_DATASIZE) {
         uint8_t datasize = server->suboption[2];
-        ESP_LOGD(TAG, "Set datasize: %d - not supported, accepting", datasize);
-        rfc2217_send_subnegotiation(server, T_SERVER_SET_DATASIZE, &server->suboption[2], 1);
+        uint8_t new_datasize = datasize;
+        if (server->config.on_datasize) {
+            new_datasize = server->config.on_datasize(server->config.ctx, datasize);
+        }
+        ESP_LOGD(TAG, "Set datasize: requested %d, accepted %d", datasize, new_datasize);
+        rfc2217_send_subnegotiation(server, T_SERVER_SET_DATASIZE, &new_datasize, 1);
     } else if (subnegotiation == T_SET_PARITY) {
         uint8_t parity = server->suboption[2];
-        ESP_LOGD(TAG, "Set parity: %d - not supported, accepting", parity);
-        rfc2217_send_subnegotiation(server, T_SERVER_SET_PARITY, &server->suboption[2], 1);
+        uint8_t new_parity = parity;
+        if (server->config.on_parity) {
+            new_parity = server->config.on_parity(server->config.ctx, parity);
+        }
+        ESP_LOGD(TAG, "Set parity: requested %d, accepted %d", parity, new_parity);
+        rfc2217_send_subnegotiation(server, T_SERVER_SET_PARITY, &new_parity, 1);
     } else if (subnegotiation == T_SET_STOPSIZE) {
         uint8_t stopsize = server->suboption[2];
-        ESP_LOGD(TAG, "Set stopsize: %d - not supported, accepting", stopsize);
-        rfc2217_send_subnegotiation(server, T_SERVER_SET_STOPSIZE, &server->suboption[2], 1);
+        uint8_t new_stopsize = stopsize;
+        if (server->config.on_stopsize) {
+            new_stopsize = server->config.on_stopsize(server->config.ctx, stopsize);
+        }
+        ESP_LOGD(TAG, "Set stopsize: requested %d, accepted %d", stopsize, new_stopsize);
+        rfc2217_send_subnegotiation(server, T_SERVER_SET_STOPSIZE, &new_stopsize, 1);
     } else if (subnegotiation == T_SET_CONTROL) {
         uint8_t control_byte = server->suboption[2];
         rfc2217_control_t control = (rfc2217_control_t)control_byte;
