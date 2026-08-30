@@ -220,6 +220,7 @@ int rfc2217_server_create(const rfc2217_server_config_t *config, rfc2217_server_
     }
 
     server->config = *config;
+    server->client_socket = -1;
     server->telnet_mode = T_NORMAL;
     pthread_mutex_init(&server->tcp_send_mutex, NULL);
     *out_server = server;
@@ -260,6 +261,16 @@ int rfc2217_server_stop(rfc2217_server_t server)
 void rfc2217_server_destroy(rfc2217_server_t server)
 {
     free(server);
+}
+
+int rfc2217_server_kick_client(rfc2217_server_t server)
+{
+    int fd = server->client_socket;
+    if (fd < 0) {
+        return -1;
+    }
+    shutdown(fd, SHUT_RDWR);                        // recv() returns 0; the owning thread closes
+    return 0;
 }
 
 void *server_thread_fn(void *ctx /* rfc2217_server_t server */)
@@ -310,6 +321,7 @@ void *server_thread_fn(void *ctx /* rfc2217_server_t server */)
 
         shutdown(server->client_socket, 0);
         close(server->client_socket);
+        server->client_socket = -1;                 // never leave a stale fd for kick() to hit
     }
     ESP_LOGD(TAG, "Server thread shutting down");
 

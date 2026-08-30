@@ -156,6 +156,11 @@ int rfc2217_server_start(rfc2217_server_t server);
  */
 int rfc2217_server_send_data(rfc2217_server_t server, const uint8_t *data, size_t len);
 
+/** @brief Disconnect the current client, if any. Safe from any task: the receive
+ *  thread sees recv()==0, fires on_client_disconnected, and the server re-accepts.
+ *  @return 0 if a client was kicked, -1 if none was connected */
+int rfc2217_server_kick_client(rfc2217_server_t server);
+
 /** @brief Stop RFC2217 server
  *
  * @param server RFC2217 server instance
