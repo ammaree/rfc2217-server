@@ -98,7 +98,7 @@ typedef struct {
 
 struct rfc2217_server_s {
     rfc2217_server_config_t config;
-    uint8_t tcp_rx_buffer[128];
+    uint8_t tcp_rx_buffer[1460];   // one MSS: a recv() per 127B was the measured ceiling (178 kbit/s)
     telnet_mode_t telnet_mode;
     int client_socket;
     pthread_t server_thread;
