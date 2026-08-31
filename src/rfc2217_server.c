@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include "esp_log.h"
 #include "esp_pthread.h"
 #include "rfc2217_server.h"
@@ -313,6 +314,16 @@ void *server_thread_fn(void *ctx /* rfc2217_server_t server */)
             ESP_LOGE(TAG, "Unable to accept connection: errno %d (%s)", errno, strerror(errno));
             break;
         }
+        // A vanished peer must not park whoever calls send(): keepalive reaps it in minutes,
+        // the send timeout bounds the wait to seconds (the caller may be a UART reader).
+        int on = 1;
+        setsockopt(server->client_socket, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on));
+        setsockopt(server->client_socket, SOL_SOCKET, SO_KEEPALIVE, &on, sizeof(on));
+        int v = 75; setsockopt(server->client_socket, IPPROTO_TCP, TCP_KEEPIDLE,  &v, sizeof(v));
+        v = 15;     setsockopt(server->client_socket, IPPROTO_TCP, TCP_KEEPINTVL, &v, sizeof(v));
+        v = 4;      setsockopt(server->client_socket, IPPROTO_TCP, TCP_KEEPCNT,   &v, sizeof(v));
+        struct timeval tv = { .tv_sec = 5 };
+        setsockopt(server->client_socket, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
 
         server->tcp_receive_thread_shutdown = false;
         pthread_create(&server->tcp_receive_thread, NULL, tcp_receive_thread_fn, server);
